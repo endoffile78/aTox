@@ -3,6 +3,7 @@ package ltd.evilcorp.atox
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import im.tox.tox4j.core.options.ProxyOptions
 import im.tox.tox4j.core.options.SaveDataOptions
 import im.tox.tox4j.core.options.ToxOptions
@@ -23,11 +24,8 @@ private fun String.hexToByteArray(): ByteArray {
 }
 
 class ProfileActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    fun createProfile(){
         setContentView(R.layout.activity_profile)
-
         btnCreate.setOnClickListener {
             btnCreate.isEnabled = false
             App.profile = if (username.text.isNotEmpty()) username.text.toString() else "aTox user"
@@ -65,6 +63,9 @@ class ProfileActivity : AppCompatActivity() {
                     "10C00EB250C3233E343E2AEBA07115A5C28920E9C8D29492F6D00B29049EDC7E".hexToByteArray()
                 )
 
+                tox.setName(App.profile)
+                tox.save(App.profile, filesDir.toString())
+
                 while (true) {
                     sleep(tox.iterate().toLong())
                 }
@@ -72,5 +73,15 @@ class ProfileActivity : AppCompatActivity() {
 
             finish()
         }
+    }
+
+    fun loadProfile() {
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        this.createProfile()
     }
 }
