@@ -93,7 +93,7 @@ class Tox(options: ToxOptions) {
         return tox.name.toString()
     }
 
-    fun save(name: String, destination: String) {
+    fun save(name: String, destination: String, encrypt: Boolean) {
         val fileName = "$name.tox"
 
         val saveFile = File("$destination/$fileName")
@@ -101,7 +101,7 @@ class Tox(options: ToxOptions) {
             saveFile.createNewFile()
         }
 
-        Log.e("Profile", "Saving profile to $saveFile")
+        Log.e("ToxCore", "Saving profile to $saveFile")
 
         saveFile.writeBytes(tox.savedata)
     }
