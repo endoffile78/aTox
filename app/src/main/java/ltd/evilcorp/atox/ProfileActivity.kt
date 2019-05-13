@@ -95,7 +95,7 @@ class ProfileActivity : AppCompatActivity() {
                 )
 
                 tox.setName(App.profile)
-                tox.save(App.profile, filesDir.toString())
+                tox.save(App.profile, filesDir.toString(), false)
                 Log.e("Profile", tox.getName())
                 Log.e("Profile", App.profile)
 

@@ -90,7 +90,7 @@ class Tox(options: ToxOptions) {
     }
 
     fun getName(): String {
-        return tox.name.toString()
+        return String(tox.name)
     }
 
     fun save(name: String, destination: String, encrypt: Boolean) {
