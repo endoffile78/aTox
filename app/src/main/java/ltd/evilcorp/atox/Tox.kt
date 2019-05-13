@@ -94,7 +94,7 @@ class Tox(options: ToxOptions) {
     }
 
     fun save(name: String, destination: String) {
-        val fileName = this.getName() + ".tox"
+        val fileName = "$name.tox"
 
         val saveFile = File("$destination/$fileName")
         if (!saveFile.exists()) {
@@ -104,9 +104,5 @@ class Tox(options: ToxOptions) {
         Log.e("Profile", "Saving profile to $saveFile")
 
         saveFile.writeBytes(tox.savedata)
-    }
-
-    fun load(): ByteArray? {
-        return null
     }
 }

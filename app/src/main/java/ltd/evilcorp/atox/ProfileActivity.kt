@@ -10,6 +10,7 @@ import im.tox.tox4j.core.options.ToxOptions
 import kotlinx.android.synthetic.main.activity_profile.*
 import java.lang.Thread.sleep
 import kotlin.concurrent.thread
+import java.io.File
 
 private const val HEX_CHARS = "0123456789ABCDEF"
 
@@ -23,14 +24,42 @@ private fun String.hexToByteArray(): ByteArray {
     return bytes
 }
 
+private fun loadToxSave(saveFile: File): ByteArray? {
+    if (!saveFile.exists()) {
+        return null
+    }
+
+    val data = saveFile.readBytes()
+
+    return data
+}
+
 class ProfileActivity : AppCompatActivity() {
-    fun createProfile(){
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
         btnCreate.setOnClickListener {
             btnCreate.isEnabled = false
             App.profile = if (username.text.isNotEmpty()) username.text.toString() else "aTox user"
             App.password = if (password.text.isNotEmpty()) password.text.toString() else ""
             startActivity(Intent(this@ProfileActivity, ContactListActivity::class.java))
+
+            var profile: File? = null
+            filesDir.walk().forEach {
+                if (it.endsWith(".tox")) {
+                    profile = it
+                    Log.e("Profile", "Found profile: ${profile.toString()}")
+                }
+            }
+
+            var saveOption: SaveDataOptions = SaveDataOptions.`None$`()
+            if (profile != null) {
+                val data = loadToxSave(profile!!)
+                if (data != null) {
+                    saveOption = SaveDataOptions.`ToxSave`(data)
+                }
+            }
 
             thread(start = true) {
                 val tox = Tox(
@@ -42,7 +71,7 @@ class ProfileActivity : AppCompatActivity() {
                         0,
                         0,
                         0,
-                        SaveDataOptions.`None$`(),
+                        saveOption,
                         true
                     )
                 )
@@ -64,7 +93,10 @@ class ProfileActivity : AppCompatActivity() {
                 )
 
                 tox.setName(App.profile)
-                tox.save(App.profile, filesDir.toString())
+
+                if (profile != null) {
+                    tox.save(App.profile, filesDir.toString())
+                }
 
                 while (true) {
                     sleep(tox.iterate().toLong())
@@ -73,15 +105,5 @@ class ProfileActivity : AppCompatActivity() {
 
             finish()
         }
-    }
-
-    fun loadProfile() {
-
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        this.createProfile()
     }
 }
