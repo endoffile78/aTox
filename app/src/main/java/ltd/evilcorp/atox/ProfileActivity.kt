@@ -47,7 +47,7 @@ class ProfileActivity : AppCompatActivity() {
 
             var profile: File? = null
             filesDir.walk().forEach {
-                if (it.endsWith(".tox")) {
+                if (it.extension.equals("tox") && it.isFile) {
                     profile = it
                     Log.e("Profile", "Found profile: ${profile.toString()}")
                 }
@@ -76,6 +76,8 @@ class ProfileActivity : AppCompatActivity() {
                     )
                 )
 
+                Log.e("Profile", tox.getName())
+
                 tox.bootstrap(
                     "tox.verdict.gg",
                     33445,
@@ -93,10 +95,7 @@ class ProfileActivity : AppCompatActivity() {
                 )
 
                 tox.setName(App.profile)
-
-                if (profile != null) {
-                    tox.save(App.profile, filesDir.toString())
-                }
+                tox.save(App.profile, filesDir.toString())
 
                 while (true) {
                     sleep(tox.iterate().toLong())
