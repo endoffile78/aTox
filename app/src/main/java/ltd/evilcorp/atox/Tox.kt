@@ -93,8 +93,8 @@ class Tox(options: ToxOptions) {
         return String(tox.name)
     }
 
-    fun save(name: String, destination: String, encrypt: Boolean) {
-        val fileName = "$name.tox"
+    fun save(destination: String, encrypt: Boolean) {
+        val fileName = this.getName() + ".tox"
 
         val saveFile = File("$destination/$fileName")
         if (!saveFile.exists()) {

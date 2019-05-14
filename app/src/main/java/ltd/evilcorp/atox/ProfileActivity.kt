@@ -38,28 +38,74 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var profile: File? = null
+        filesDir.walk().forEach {
+            if (it.extension.equals("tox") && it.isFile) {
+                profile = it
+                App.profile = it.nameWithoutExtension
+                Log.e("Profile", "Found profile: ${profile.toString()}")
+            }
+        }
+
+        if (profile != null) {
+            var saveOption: SaveDataOptions = SaveDataOptions.`None$`()
+            val data = loadToxSave(profile!!)
+            if (data != null) {
+                saveOption = SaveDataOptions.`ToxSave`(data)
+                thread(start = true) { // TODO(endoffile78): make a thread class
+                    val tox = Tox(
+                        ToxOptions(
+                            true,
+                            true,
+                            true,
+                            ProxyOptions.`None$`(),
+                            0,
+                            0,
+                            0,
+                            saveOption,
+                            true
+                        )
+                    )
+
+                    tox.bootstrap(
+                        "tox.verdict.gg",
+                        33445,
+                        "1C5293AEF2114717547B39DA8EA6F1E331E5E358B35F9B6B5F19317911C5F976".hexToByteArray()
+                    )
+                    tox.bootstrap(
+                        "tox.kurnevsky.net",
+                        33445,
+                        "82EF82BA33445A1F91A7DB27189ECFC0C013E06E3DA71F588ED692BED625EC23".hexToByteArray()
+                    )
+                    tox.bootstrap(
+                        "tox.abilinski.com",
+                        33445,
+                        "10C00EB250C3233E343E2AEBA07115A5C28920E9C8D29492F6D00B29049EDC7E".hexToByteArray()
+                    )
+
+                    tox.setName(App.profile)
+                    tox.save(filesDir.toString(), false)
+
+                    Log.e("Profile", tox.getName())
+
+                    while (true) {
+                        sleep(tox.iterate().toLong())
+                    }
+                }
+
+                Log.e("Profile", "Skipping create profile")
+                startActivity(Intent(this, ContactListActivity::class.java))
+                finish()
+            }
+        }
+
         setContentView(R.layout.activity_profile)
         btnCreate.setOnClickListener {
             btnCreate.isEnabled = false
             App.profile = if (username.text.isNotEmpty()) username.text.toString() else "aTox user"
             App.password = if (password.text.isNotEmpty()) password.text.toString() else ""
             startActivity(Intent(this@ProfileActivity, ContactListActivity::class.java))
-
-            var profile: File? = null
-            filesDir.walk().forEach {
-                if (it.extension.equals("tox") && it.isFile) {
-                    profile = it
-                    Log.e("Profile", "Found profile: ${profile.toString()}")
-                }
-            }
-
-            var saveOption: SaveDataOptions = SaveDataOptions.`None$`()
-            if (profile != null) {
-                val data = loadToxSave(profile!!)
-                if (data != null) {
-                    saveOption = SaveDataOptions.`ToxSave`(data)
-                }
-            }
 
             thread(start = true) {
                 val tox = Tox(
@@ -71,12 +117,10 @@ class ProfileActivity : AppCompatActivity() {
                         0,
                         0,
                         0,
-                        saveOption,
+                        SaveDataOptions.`None$`(),
                         true
                     )
                 )
-
-                Log.e("Profile", tox.getName())
 
                 tox.bootstrap(
                     "tox.verdict.gg",
@@ -95,9 +139,9 @@ class ProfileActivity : AppCompatActivity() {
                 )
 
                 tox.setName(App.profile)
-                tox.save(App.profile, filesDir.toString(), false)
+                tox.save(filesDir.toString(), false)
+
                 Log.e("Profile", tox.getName())
-                Log.e("Profile", App.profile)
 
                 while (true) {
                     sleep(tox.iterate().toLong())
